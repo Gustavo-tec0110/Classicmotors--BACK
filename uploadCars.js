@@ -187,15 +187,16 @@ const carros = [
   }
 ];
 
-// Inserção no banco, agora com todos os campos
-carros.forEach(carro => {
-  const query = `
-    INSERT INTO carros 
-    (marca, modelo, ano, preco, imagem, descricao, descricaoCurta, km, combustivel, finalPlaca, cambio, cor, cidade, aceitaTroca, imagens)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
+const query = `
+  INSERT INTO carros (
+    marca, modelo, ano, preco, imagem,
+    descricao, descricaoCurta, km, combustivel,
+    finalPlaca, cambio, cor, cidade, aceitaTroca, imagens
+  )
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
 
-  // Convertendo array de imagens para string JSON antes de salvar
+carros.forEach((carro) => {
   const imagensJSON = JSON.stringify(carro.imagens);
 
   db.run(
@@ -217,11 +218,11 @@ carros.forEach(carro => {
       carro.aceitaTroca,
       imagensJSON
     ],
-    function(err) {
+    function (err) {
       if (err) {
-        console.error("Erro ao inserir carro:", carro, err.message);
+        console.error("Erro ao inserir carro:", carro.modelo, err.message);
       } else {
-        console.log(`Carro inserido com ID ${this.lastID}: ${carro.marca} ${carro.modelo}`);
+        console.log(`Carro inserido: ${carro.modelo} (ID ${this.lastID})`);
       }
     }
   );
