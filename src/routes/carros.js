@@ -1,0 +1,83 @@
+const express = require("express");
+const router = express.Router();
+const db = require("../database/db");
+
+// LISTAR TODOS OS CARROS
+router.get("/", (req, res) => {
+  const { marca } = req.query;
+
+  let query = "SELECT * FROM carros";
+  let params = [];
+
+  if (marca) {
+    query += " WHERE marca = ?";
+    params.push(marca);
+  }
+
+  db.all(query, params, (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+});
+
+// CRIAR NOVO CARRO
+router.post("/", (req, res) => {
+  const { marca, modelo, ano, preco, imagem } = req.body;
+
+  const query = `
+    INSERT INTO carros (marca, modelo, ano, preco, imagem)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  db.run(query, [marca, modelo, ano, preco, imagem], function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    res.status(201).json({
+      id: this.lastID,
+      marca,
+      modelo,
+      ano,
+      preco,
+      imagem
+    });
+  });
+});
+
+// ATUALIZAR CARRO
+router.put("/:id", (req, res) => {
+  const { id } = req.params;
+  const { marca, modelo, ano, preco, imagem } = req.body;
+
+  const query = `
+    UPDATE carros
+    SET marca = ?, modelo = ?, ano = ?, preco = ?, imagem = ?
+    WHERE id = ?
+  `;
+
+  db.run(query, [marca, modelo, ano, preco, imagem, id], function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    res.json({ message: "Carro atualizado com sucesso" });
+  });
+});
+
+// DELETAR CARRO
+router.delete("/:id", (req, res) => {
+  const { id } = req.params;
+
+  db.run("DELETE FROM carros WHERE id = ?", [id], function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    res.json({ message: "Carro removido com sucesso" });
+  });
+});
+
+module.exports = router;
