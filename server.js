@@ -1,24 +1,16 @@
 const express = require("express");
 const cors = require("cors");
-const db = require("./src/database/db"); // conexão SQLite
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// rota para pegar carros do banco
-app.get("/carros", (req, res) => {
-  db.all("SELECT * FROM carros", (err, rows) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ error: "Erro ao buscar carros" });
-      return;
-    }
-    res.json(rows);
-  });
-});
+// rotas
+const carrosRoutes = require("./src/routes/carros");
+app.use("/carros", carrosRoutes);
 
-// rota raiz só pra teste
+// rota raiz
 app.get("/", (req, res) => {
   res.send("API WebMotors rodando 🚗");
 });
