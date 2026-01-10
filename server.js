@@ -1,15 +1,18 @@
 const express = require("express");
 const cors = require("cors");
-const path = require('path');
-app.use("/imagens", express.static(path.join(__dirname, "imagens")));
+const path = require("path");
 
 const app = express();
 
-app.use(cors());
+// CORS (libera acesso do front)
+app.use(cors({
+  origin: "*"
+}));
+
 app.use(express.json());
 
 // SERVIR IMAGENS
-app.use("/imagens", express.static("imagens"));
+app.use("/imagens", express.static(path.join(__dirname, "imagens")));
 
 // rotas
 const carrosRoutes = require("./src/routes/carros");
@@ -20,6 +23,8 @@ app.get("/", (req, res) => {
   res.send("API WebMotors rodando 🚗");
 });
 
-app.listen(3000, () => {
-  console.log("Servidor rodando em http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
