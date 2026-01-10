@@ -4,19 +4,23 @@ const path = require("path");
 
 const app = express();
 
-// CORS (libera acesso do front)
-app.use(cors({
-  origin: "*"
-}));
+// CORS — antes de tudo
+app.use(cors());
+app.options("*", cors());
 
 app.use(express.json());
 
-// SERVIR IMAGENS
+// imagens
 app.use("/imagens", express.static(path.join(__dirname, "imagens")));
 
 // rotas
 const carrosRoutes = require("./src/routes/carros");
 app.use("/carros", carrosRoutes);
+
+// rota teste
+app.get("/test-cors", (req, res) => {
+  res.json({ ok: true });
+});
 
 // rota raiz
 app.get("/", (req, res) => {
@@ -24,7 +28,7 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log("Servidor rodando na porta", PORT);
 });
+  
