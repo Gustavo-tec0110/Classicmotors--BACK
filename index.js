@@ -4,20 +4,26 @@ const path = require("path");
 
 const app = express();
 
-// CORS — aplicar como middleware (não usar app.options('*', ...))
-app.use(cors());
+/* ======================
+   CORS (CORRETO)
+====================== */
+app.use(cors({
+  origin: "*", // libera qualquer front (Netlify, localhost, etc)
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 // parse JSON
 app.use(express.json());
 
-// servir imagens (garanta que a pasta "imagens" exista na raiz)
+// servir imagens
 app.use("/imagens", express.static(path.join(__dirname, "imagens")));
 
 // rotas
 const carrosRoutes = require("./src/routes/carros");
 app.use("/carros", carrosRoutes);
 
-// rota teste simples
+// rota teste
 app.get("/test-cors", (req, res) => {
   res.json({ ok: true });
 });
@@ -27,12 +33,12 @@ app.get("/", (req, res) => {
   res.send("API WebMotors rodando 🚗");
 });
 
-// fallback 404 (catch-all sem usar '*')
+// fallback 404
 app.use((req, res) => {
   res.status(404).json({ error: "Rota não encontrada" });
 });
 
-// middleware de erro (básico, útil pra logs)
+// middleware de erro
 app.use((err, req, res, next) => {
   console.error("Erro no servidor:", err);
   res.status(500).json({ error: "Erro interno do servidor" });
