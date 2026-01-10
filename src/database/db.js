@@ -1,16 +1,25 @@
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
+const fs = require("fs");
 
-const dbPath = path.resolve(__dirname, "database.sqlite");
+// Railway só permite escrita segura em /tmp
+const dbDir = "/tmp";
+const dbPath = path.join(dbDir, "database.sqlite");
+
+// garante que o diretório existe
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
-    console.error("Erro ao conectar no banco", err);
+    console.error("❌ Erro ao conectar no banco:", err.message);
   } else {
-    console.log("Banco de dados conectado");
+    console.log("✅ Banco conectado em", dbPath);
   }
 });
 
+// cria tabela se não existir
 db.run(`
   CREATE TABLE IF NOT EXISTS carros (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,6 +27,11 @@ db.run(`
     modelo TEXT,
     ano INTEGER,
     preco REAL,
+    precoAntigo REAL,
+    emOferta INTEGER,
+    badge TEXT,
+    secao TEXT,
+    prioridade INTEGER,
     imagem TEXT,
     descricao TEXT,
     descricaoCurta TEXT,

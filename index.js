@@ -1,50 +1,52 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 
-/* ======================
-   CORS (CORRETO)
-====================== */
+// log de request (debug)
+app.use((req, res, next) => {
+  console.log("➡️", req.method, req.url);
+  next();
+});
+
+// CORS
 app.use(cors({
-  origin: "*", // libera qualquer front (Netlify, localhost, etc)
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
 }));
 
-// parse JSON
 app.use(express.json());
 
-// servir imagens
-app.use("/imagens", express.static(path.join(__dirname, "imagens")));
+// pasta imagens (garante que existe)
+const imagensPath = path.join(__dirname, "imagens");
+if (!fs.existsSync(imagensPath)) {
+  fs.mkdirSync(imagensPath);
+}
+app.use("/imagens", express.static(imagensPath));
 
 // rotas
 const carrosRoutes = require("./src/routes/carros");
 app.use("/carros", carrosRoutes);
 
-// rota teste
-app.get("/test-cors", (req, res) => {
-  res.json({ ok: true });
-});
-
-// rota raiz
+// raiz
 app.get("/", (req, res) => {
   res.send("API WebMotors rodando 🚗");
 });
 
-// fallback 404
+// 404
 app.use((req, res) => {
   res.status(404).json({ error: "Rota não encontrada" });
 });
 
-// middleware de erro
+// erro
 app.use((err, req, res, next) => {
-  console.error("Erro no servidor:", err);
-  res.status(500).json({ error: "Erro interno do servidor" });
+  console.error("🔥 Erro:", err);
+  res.status(500).json({ error: "Erro interno" });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log("Servidor rodando na porta", PORT);
+  console.log("🚀 Servidor rodando na porta", PORT);
 });
