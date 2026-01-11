@@ -8,14 +8,8 @@ const upload = require("../config/multer");
 // ==========================
 router.get("/", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM carros ORDER BY id DESC");
-
-    const carros = result.rows.map(carro => ({
-      ...carro,
-      imagem: carro.imagem || null
-    }));
-
-    res.json(carros);
+    const result = await db.query("SELECT * FROM carros");
+    res.json(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erro ao listar carros" });
@@ -52,19 +46,18 @@ router.post("/", upload.single("imagem"), async (req, res) => {
     const values = [
       marca,
       modelo,
-      ano || null,
-      preco || null,
+      ano,
+      preco,
       imagem,
-      km || null,
-      combustivel || null,
-      cambio || null,
-      cor || null,
-      cidade || null,
-      descricao || null
+      km,
+      combustivel,
+      cambio,
+      cor,
+      cidade,
+      descricao
     ];
 
     const result = await db.query(query, values);
-
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
@@ -73,12 +66,11 @@ router.post("/", upload.single("imagem"), async (req, res) => {
 });
 
 // ==========================
-// ATUALIZAR CARRO
+// ATUALIZAR
 // ==========================
 router.put("/:id", upload.single("imagem"), async (req, res) => {
   try {
     const { id } = req.params;
-
     const {
       marca,
       modelo,
@@ -95,28 +87,35 @@ router.put("/:id", upload.single("imagem"), async (req, res) => {
     const imagem = req.file ? `/imagens/${req.file.filename}` : null;
 
     const query = `
-      UPDATE carros
-      SET marca=$1, modelo=$2, ano=$3, preco=$4, imagem=$5,
-          km=$6, combustivel=$7, cambio=$8, cor=$9, cidade=$10, descricao=$11
+      UPDATE carros SET
+        marca=$1,
+        modelo=$2,
+        ano=$3,
+        preco=$4,
+        imagem=$5,
+        km=$6,
+        combustivel=$7,
+        cambio=$8,
+        cor=$9,
+        cidade=$10,
+        descricao=$11
       WHERE id=$12
     `;
 
-    const values = [
+    await db.query(query, [
       marca,
       modelo,
-      ano || null,
-      preco || null,
+      ano,
+      preco,
       imagem,
-      km || null,
-      combustivel || null,
-      cambio || null,
-      cor || null,
-      cidade || null,
-      descricao || null,
+      km,
+      combustivel,
+      cambio,
+      cor,
+      cidade,
+      descricao,
       id
-    ];
-
-    await db.query(query, values);
+    ]);
 
     res.json({ message: "Carro atualizado" });
   } catch (err) {
@@ -130,7 +129,7 @@ router.put("/:id", upload.single("imagem"), async (req, res) => {
 // ==========================
 router.delete("/:id", async (req, res) => {
   try {
-    await db.query("DELETE FROM carros WHERE id = $1", [req.params.id]);
+    await db.query("DELETE FROM carros WHERE id=$1", [req.params.id]);
     res.json({ message: "Carro removido" });
   } catch (err) {
     console.error(err);
