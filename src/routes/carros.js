@@ -8,13 +8,38 @@ const upload = require("../config/multer");
 // ==========================
 router.get("/", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM carros");
+    const result = await db.query(`
+      SELECT
+        id,
+        marca,
+        modelo,
+        ano,
+        preco,
+        precoantigo     AS "precoAntigo",
+        emoferta        AS "emOferta",
+        badge,
+        secao,
+        prioridade,
+        imagem,
+        descricao,
+        descricaocurta  AS "descricaoCurta",
+        km,
+        combustivel,
+        finalplaca      AS "finalPlaca",
+        cambio,
+        cor,
+        cidade,
+        aceitatroca     AS "aceitaTroca",
+        imagens
+      FROM carros
+    `);
+
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao listar carros" });
+    res.status(500).json({ erro: "Erro ao buscar carros" });
   }
 });
+
 
 // ==========================
 // CRIAR CARRO
