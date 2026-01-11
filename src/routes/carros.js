@@ -6,108 +6,136 @@ const upload = require("../config/multer");
 // ==========================
 // LISTAR CARROS
 // ==========================
-router.get("/", (req, res) => {
-  db.all("SELECT * FROM carros", [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
+router.get("/", async (req, res) => {
+  try {
+    const result = await db.query("SELECT * FROM carros ORDER BY id DESC");
 
-    // adapta para o front
-    const carros = rows.map(carro => ({
+    const carros = result.rows.map(carro => ({
       ...carro,
       imagem: carro.imagem || null
     }));
 
     res.json(carros);
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao listar carros" });
+  }
 });
 
 // ==========================
 // CRIAR CARRO
 // ==========================
-router.post("/", upload.single("imagem"), (req, res) => {
-  const {
-    marca,
-    modelo,
-    ano,
-    preco,
-    km,
-    combustivel,
-    cambio,
-    cor,
-    cidade,
-    descricao
-  } = req.body;
+router.post("/", upload.single("imagem"), async (req, res) => {
+  try {
+    const {
+      marca,
+      modelo,
+      ano,
+      preco,
+      km,
+      combustivel,
+      cambio,
+      cor,
+      cidade,
+      descricao
+    } = req.body;
 
-  const imagem = req.file ? `/imagens/${req.file.filename}` : null;
+    const imagem = req.file ? `/imagens/${req.file.filename}` : null;
 
-  const query = `
-    INSERT INTO carros
-    (marca, modelo, ano, preco, imagem, km, combustivel, cambio, cor, cidade, descricao)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
+    const query = `
+      INSERT INTO carros
+      (marca, modelo, ano, preco, imagem, km, combustivel, cambio, cor, cidade, descricao)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+      RETURNING *
+    `;
 
-  db.run(
-    query,
-    [marca, modelo, ano, preco, imagem, km, combustivel, cambio, cor, cidade, descricao],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
+    const values = [
+      marca,
+      modelo,
+      ano || null,
+      preco || null,
+      imagem,
+      km || null,
+      combustivel || null,
+      cambio || null,
+      cor || null,
+      cidade || null,
+      descricao || null
+    ];
 
-      res.status(201).json({
-        id: this.lastID,
-        marca,
-        modelo,
-        imagem
-      });
-    }
-  );
+    const result = await db.query(query, values);
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao criar carro" });
+  }
 });
 
 // ==========================
 // ATUALIZAR CARRO
 // ==========================
-router.put("/:id", upload.single("imagem"), (req, res) => {
-  const { id } = req.params;
+router.put("/:id", upload.single("imagem"), async (req, res) => {
+  try {
+    const { id } = req.params;
 
-  const {
-    marca,
-    modelo,
-    ano,
-    preco,
-    km,
-    combustivel,
-    cambio,
-    cor,
-    cidade,
-    descricao
-  } = req.body;
+    const {
+      marca,
+      modelo,
+      ano,
+      preco,
+      km,
+      combustivel,
+      cambio,
+      cor,
+      cidade,
+      descricao
+    } = req.body;
 
-  const imagem = req.file ? `/imagens/${req.file.filename}` : null;
+    const imagem = req.file ? `/imagens/${req.file.filename}` : null;
 
-  const query = `
-    UPDATE carros
-    SET marca=?, modelo=?, ano=?, preco=?, imagem=?, km=?, combustivel=?, cambio=?, cor=?, cidade=?, descricao=?
-    WHERE id=?
-  `;
+    const query = `
+      UPDATE carros
+      SET marca=$1, modelo=$2, ano=$3, preco=$4, imagem=$5,
+          km=$6, combustivel=$7, cambio=$8, cor=$9, cidade=$10, descricao=$11
+      WHERE id=$12
+    `;
 
-  db.run(
-    query,
-    [marca, modelo, ano, preco, imagem, km, combustivel, cambio, cor, cidade, descricao, id],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
+    const values = [
+      marca,
+      modelo,
+      ano || null,
+      preco || null,
+      imagem,
+      km || null,
+      combustivel || null,
+      cambio || null,
+      cor || null,
+      cidade || null,
+      descricao || null,
+      id
+    ];
 
-      res.json({ message: "Carro atualizado" });
-    }
-  );
+    await db.query(query, values);
+
+    res.json({ message: "Carro atualizado" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao atualizar carro" });
+  }
 });
 
 // ==========================
 // DELETE
 // ==========================
-router.delete("/:id", (req, res) => {
-  db.run("DELETE FROM carros WHERE id = ?", [req.params.id], function (err) {
-    if (err) return res.status(500).json({ error: err.message });
-
+router.delete("/:id", async (req, res) => {
+  try {
+    await db.query("DELETE FROM carros WHERE id = $1", [req.params.id]);
     res.json({ message: "Carro removido" });
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao remover carro" });
+  }
 });
 
 module.exports = router;

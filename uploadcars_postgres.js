@@ -1,4 +1,4 @@
-const db = require("./src/database/db.js");
+const db = require("./src/database/db");
 
 const carros = [
   {
@@ -27,7 +27,6 @@ const carros = [
       "assets/kadett3.webp"
     ]
   },
-
   {
     marca: "Volkswagen",
     modelo: "Fusca 1300",
@@ -54,7 +53,6 @@ const carros = [
       "assets/fusca3.webp"
     ]
   },
-
   {
     marca: "Chevrolet",
     modelo: "Chevette SL",
@@ -81,7 +79,6 @@ const carros = [
       "assets/chevette3.webp"
     ]
   },
-
   {
     marca: "Volkswagen",
     modelo: "Gol Quadrado 1.8 AP",
@@ -108,7 +105,6 @@ const carros = [
       "assets/gol3.webp"
     ]
   },
-
   {
     marca: "Volkswagen",
     modelo: "Brasília 1600",
@@ -135,7 +131,6 @@ const carros = [
       "assets/brasilia3.webp"
     ]
   },
-
   {
     marca: "Volkswagen",
     modelo: "T-Cross 1.0 TSI",
@@ -162,7 +157,6 @@ const carros = [
       "assets/t-cros3.webp"
     ]
   },
-
   {
     marca: "Chevrolet",
     modelo: "Opala Comodoro 4.1",
@@ -189,7 +183,6 @@ const carros = [
       "assets/opala3.webp"
     ]
   },
-
   {
     marca: "Volkswagen",
     modelo: "Santana 2.0 MI",
@@ -216,7 +209,6 @@ const carros = [
       "assets/santana3.webp"
     ]
   },
-
   {
     marca: "Volkswagen",
     modelo: "Saveiro Quadrada 1.8 AP",
@@ -251,59 +243,62 @@ const query = `
     modelo,
     ano,
     preco,
-    precoAntigo,
-    emOferta,
+    precoantigo,
+    emoferta,
     badge,
     secao,
     prioridade,
     imagem,
     descricao,
-    descricaoCurta,
+    descricaocurta,
     km,
     combustivel,
-    finalPlaca,
+    finalplaca,
     cambio,
     cor,
     cidade,
-    aceitaTroca,
+    aceitatroca,
     imagens
   )
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  VALUES (
+    $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
+    $11,$12,$13,$14,$15,$16,$17,$18,$19,$20
+  )
+  RETURNING id
 `;
 
-carros.forEach((carro) => {
-  const imagensJSON = JSON.stringify(carro.imagens);
+(async () => {
+  for (const c of carros) {
+    const values = [
+      c.marca,
+      c.modelo,
+      c.ano || null,
+      c.preco || null,
+      c.precoAntigo || null,
+      c.emOferta === true,
+      c.badge || null,
+      c.secao || null,
+      c.prioridade || null,
+      c.imagem || null,
+      c.descricao || null,
+      c.descricaoCurta || null,
+      c.km || null,
+      c.combustivel || null,
+      c.finalPlaca || null,
+      c.cambio || null,
+      c.cor || null,
+      c.cidade || null,
+      c.aceitaTroca || null,
+      JSON.stringify(c.imagens || [])
+    ];
 
-  db.run(
-    query,
-    [
-      carro.marca,
-      carro.modelo,
-      carro.ano,
-      carro.preco,
-      carro.precoAntigo,
-      carro.emOferta ? 1 : 0,
-      carro.badge,
-      carro.secao,
-      carro.prioridade,
-      carro.imagem,
-      carro.descricao,
-      carro.descricaoCurta,
-      carro.km,
-      carro.combustivel,
-      carro.finalPlaca,
-      carro.cambio,
-      carro.cor,
-      carro.cidade,
-      carro.aceitaTroca,
-      imagensJSON
-    ],
-    function (err) {
-      if (err) {
-        console.error("Erro ao inserir carro:", carro.modelo, err.message);
-      } else {
-        console.log(`Carro inserido: ${carro.modelo} (ID ${this.lastID})`);
-      }
+    try {
+      const r = await db.query(query, values);
+      console.log(`✅ Inserido: ${c.modelo} (ID ${r.rows[0].id})`);
+    } catch (err) {
+      console.error(`❌ Erro ao inserir ${c.modelo}:`, err.message);
     }
-  );
-});
+  }
+
+  process.exit(0);
+})();
