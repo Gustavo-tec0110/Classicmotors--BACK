@@ -126,7 +126,7 @@ const carros = [
     cidade: "Porto Alegre",
     aceitaTroca: "Não",
     imagens: [
-      "assets/brasilia1.webp",
+      "assets/brasilia1_fixed.webp",
       "assets/brasilia2.webp",
       "assets/brasilia3.webp"
     ]
