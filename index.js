@@ -20,11 +20,14 @@ app.use(cors({
 app.use(express.json());
 
 // pasta imagens (garante que existe)
-const imagensPath = path.join(__dirname, "imagens");
+const imagensPath = path.join(process.cwd(), "imagens");
+
 if (!fs.existsSync(imagensPath)) {
-  fs.mkdirSync(imagensPath);
+  fs.mkdirSync(imagensPath, { recursive: true });
 }
+
 app.use("/imagens", express.static(imagensPath));
+
 
 // rotas
 const carrosRoutes = require("./src/routes/carros");
