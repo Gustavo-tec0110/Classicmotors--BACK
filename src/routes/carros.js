@@ -44,7 +44,7 @@ router.get("/", async (req, res) => {
 // ==========================
 // CRIAR CARRO
 // ==========================
-router.post("/", upload.single("imagem"), async (req, res) => {
+router.post("/", upload.array("imagens"), async (req, res) => {
   try {
     const {
       marca,
@@ -56,15 +56,35 @@ router.post("/", upload.single("imagem"), async (req, res) => {
       cambio,
       cor,
       cidade,
-      descricao
+      descricao,
+      descricaocurta,
+      aceitatroca
     } = req.body;
 
-    const imagem = req.file ? `/imagens/${req.file.filename}` : null;
+    // transforma arquivos em array de paths
+    const imagens = req.files
+      ? req.files.map(file => `/imagens/${file.filename}`)
+      : [];
 
     const query = `
       INSERT INTO carros
-      (marca, modelo, ano, preco, imagem, km, combustivel, cambio, cor, cidade, descricao)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+      (
+        marca,
+        modelo,
+        ano,
+        preco,
+        km,
+        combustivel,
+        cambio,
+        cor,
+        cidade,
+        descricao,
+        descricaocurta,
+        aceitatroca,
+        imagens
+      )
+      VALUES
+      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
       RETURNING *
     `;
 
@@ -73,17 +93,20 @@ router.post("/", upload.single("imagem"), async (req, res) => {
       modelo,
       ano,
       preco,
-      imagem,
       km,
       combustivel,
       cambio,
       cor,
       cidade,
-      descricao
+      descricao,
+      descricaocurta,
+      aceitatroca === "true", // garante boolean
+      JSON.stringify(imagens)
     ];
 
     const result = await db.query(query, values);
     res.status(201).json(result.rows[0]);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erro ao criar carro" });
@@ -93,9 +116,13 @@ router.post("/", upload.single("imagem"), async (req, res) => {
 // ==========================
 // ATUALIZAR
 // ==========================
-router.put("/:id", upload.single("imagem"), async (req, res) => {
+// ==========================
+// ATUALIZAR CARRO
+// ==========================
+router.put("/:id", upload.array("imagens"), async (req, res) => {
   try {
     const { id } = req.params;
+
     const {
       marca,
       modelo,
@@ -106,10 +133,15 @@ router.put("/:id", upload.single("imagem"), async (req, res) => {
       cambio,
       cor,
       cidade,
-      descricao
+      descricao,
+      descricaocurta,
+      aceitatroca
     } = req.body;
 
-    const imagem = req.file ? `/imagens/${req.file.filename}` : null;
+    // novas imagens (se vierem)
+    const imagens = req.files && req.files.length > 0
+      ? req.files.map(file => `/imagens/${file.filename}`)
+      : null;
 
     const query = `
       UPDATE carros SET
@@ -117,14 +149,16 @@ router.put("/:id", upload.single("imagem"), async (req, res) => {
         modelo=$2,
         ano=$3,
         preco=$4,
-        imagem=$5,
-        km=$6,
-        combustivel=$7,
-        cambio=$8,
-        cor=$9,
-        cidade=$10,
-        descricao=$11
-      WHERE id=$12
+        km=$5,
+        combustivel=$6,
+        cambio=$7,
+        cor=$8,
+        cidade=$9,
+        descricao=$10,
+        descricaocurta=$11,
+        aceitatroca=$12,
+        imagens = COALESCE($13, imagens)
+      WHERE id=$14
     `;
 
     await db.query(query, [
@@ -132,22 +166,26 @@ router.put("/:id", upload.single("imagem"), async (req, res) => {
       modelo,
       ano,
       preco,
-      imagem,
       km,
       combustivel,
       cambio,
       cor,
       cidade,
       descricao,
+      descricaocurta,
+      aceitatroca === "true",
+      imagens ? JSON.stringify(imagens) : null,
       id
     ]);
 
     res.json({ message: "Carro atualizado" });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erro ao atualizar carro" });
   }
 });
+
 
 // ==========================
 // DELETE
