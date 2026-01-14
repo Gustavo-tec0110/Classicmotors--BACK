@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database/db");
 const upload = require("../config/multer");
+const { uploadBuffer } = require("../services/uploadToCloudinary");
 
 // ==========================
 // LISTAR CARROS
@@ -61,10 +62,14 @@ router.post("/", upload.array("imagens"), async (req, res) => {
       aceitatroca
     } = req.body;
 
-    // transforma arquivos em array de paths
-    const imagens = req.files
-      ? req.files.map(file => `/imagens/${file.filename}`)
-      : [];
+    // sobe imagens para o Cloudinary
+let imagens = [];
+
+if (req.files && req.files.length > 0) {
+  imagens = await Promise.all(
+    req.files.map(file => uploadBuffer(file.buffer, file.originalname))
+  );
+}
 
     const query = `
       INSERT INTO carros
