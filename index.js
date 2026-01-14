@@ -36,20 +36,6 @@ app.use(
   })
 );
 
-app.get("/__reset-imagens", async (req, res) => {
-  try {
-    const db = require("./src/database/db");
-
-    await db.query("UPDATE carros SET imagens = NULL");
-
-    res.json({ ok: true, msg: "Campo imagens resetado com sucesso" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao resetar imagens" });
-  }
-});
-
-
 // rotas da API
 const carrosRoutes = require("./src/routes/carros");
 app.use("/carros", carrosRoutes);
