@@ -119,9 +119,6 @@ if (req.files && req.files.length > 0) {
 });
 
 // ==========================
-// ATUALIZAR
-// ==========================
-// ==========================
 // ATUALIZAR CARRO
 // ==========================
 router.put("/:id", upload.array("imagens"), async (req, res) => {
@@ -143,10 +140,16 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
       aceitatroca
     } = req.body;
 
-    // novas imagens (se vierem)
-    const imagens = req.files && req.files.length > 0
-      ? req.files.map(file => `/imagens/${file.filename}`)
-      : null;
+    // 🔥 Cloudinary (igual ao CREATE)
+    let novasImagens = null;
+
+    if (req.files && req.files.length > 0) {
+      novasImagens = await Promise.all(
+        req.files.map(file =>
+          uploadBuffer(file.buffer, file.originalname)
+        )
+      );
+    }
 
     const query = `
       UPDATE carros SET
@@ -164,9 +167,10 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
         aceitatroca=$12,
         imagens = COALESCE($13, imagens)
       WHERE id=$14
+      RETURNING *
     `;
 
-    await db.query(query, [
+    const values = [
       marca,
       modelo,
       ano,
@@ -179,18 +183,18 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
       descricao,
       descricaocurta,
       aceitatroca === "true",
-      imagens ? JSON.stringify(imagens) : null,
+      novasImagens ? JSON.stringify(novasImagens) : null,
       id
-    ]);
+    ];
 
-    res.json({ message: "Carro atualizado" });
+    const result = await db.query(query, values);
 
+    res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erro ao atualizar carro" });
   }
 });
-
 
 // ==========================
 // DELETE
