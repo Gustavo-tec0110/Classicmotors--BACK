@@ -16,31 +16,31 @@ router.get("/", async (req, res) => {
         modelo,
         ano,
         preco,
-        precoantigo     AS "precoAntigo",
-        emoferta        AS "emOferta",
+        precoantigo      AS "precoAntigo",
+        empromocao       AS "emPromocao",
         badge,
         secao,
         prioridade,
         imagem,
         descricao,
-        descricaocurta  AS "descricaoCurta",
+        descricaocurta   AS "descricaoCurta",
         km,
         combustivel,
-        finalplaca      AS "finalPlaca",
+        finalplaca       AS "finalPlaca",
         cambio,
         cor,
         cidade,
-        aceitatroca     AS "aceitaTroca",
+        aceitatroca      AS "aceitaTroca",
         imagens
       FROM carros
     `);
 
     res.json(result.rows);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ erro: "Erro ao buscar carros" });
   }
 });
-
 
 // ==========================
 // CRIAR CARRO
@@ -52,6 +52,8 @@ router.post("/", upload.array("imagens"), async (req, res) => {
       modelo,
       ano,
       preco,
+      precoAntigo,
+      emPromocao,
       km,
       combustivel,
       cambio,
@@ -62,14 +64,15 @@ router.post("/", upload.array("imagens"), async (req, res) => {
       aceitatroca
     } = req.body;
 
-    // sobe imagens para o Cloudinary
-let imagens = [];
-
-if (req.files && req.files.length > 0) {
-  imagens = await Promise.all(
-    req.files.map(file => uploadBuffer(file.buffer, file.originalname))
-  );
-}
+    // Upload imagens (Cloudinary)
+    let imagens = [];
+    if (req.files && req.files.length > 0) {
+      imagens = await Promise.all(
+        req.files.map(file =>
+          uploadBuffer(file.buffer, file.originalname)
+        )
+      );
+    }
 
     const query = `
       INSERT INTO carros
@@ -78,6 +81,8 @@ if (req.files && req.files.length > 0) {
         modelo,
         ano,
         preco,
+        precoantigo,
+        empromocao,
         km,
         combustivel,
         cambio,
@@ -89,7 +94,7 @@ if (req.files && req.files.length > 0) {
         imagens
       )
       VALUES
-      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
       RETURNING *
     `;
 
@@ -98,6 +103,8 @@ if (req.files && req.files.length > 0) {
       modelo,
       ano,
       preco,
+      precoAntigo || null,
+      emPromocao === "true",
       km,
       combustivel,
       cambio,
@@ -105,7 +112,7 @@ if (req.files && req.files.length > 0) {
       cidade,
       descricao,
       descricaocurta,
-      aceitatroca === "true", // garante boolean
+      aceitatroca === "true",
       JSON.stringify(imagens)
     ];
 
@@ -130,6 +137,8 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
       modelo,
       ano,
       preco,
+      precoAntigo,
+      emPromocao,
       km,
       combustivel,
       cambio,
@@ -140,9 +149,7 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
       aceitatroca
     } = req.body;
 
-    // 🔥 Cloudinary (igual ao CREATE)
     let novasImagens = null;
-
     if (req.files && req.files.length > 0) {
       novasImagens = await Promise.all(
         req.files.map(file =>
@@ -157,16 +164,18 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
         modelo=$2,
         ano=$3,
         preco=$4,
-        km=$5,
-        combustivel=$6,
-        cambio=$7,
-        cor=$8,
-        cidade=$9,
-        descricao=$10,
-        descricaocurta=$11,
-        aceitatroca=$12,
-        imagens = COALESCE($13, imagens)
-      WHERE id=$14
+        precoantigo=$5,
+        empromocao=$6,
+        km=$7,
+        combustivel=$8,
+        cambio=$9,
+        cor=$10,
+        cidade=$11,
+        descricao=$12,
+        descricaocurta=$13,
+        aceitatroca=$14,
+        imagens = COALESCE($15, imagens)
+      WHERE id=$16
       RETURNING *
     `;
 
@@ -175,6 +184,8 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
       modelo,
       ano,
       preco,
+      precoAntigo || null,
+      emPromocao === "true",
       km,
       combustivel,
       cambio,
@@ -188,8 +199,8 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
     ];
 
     const result = await db.query(query, values);
-
     res.json(result.rows[0]);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erro ao atualizar carro" });
