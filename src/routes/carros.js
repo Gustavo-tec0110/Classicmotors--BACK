@@ -61,7 +61,9 @@ router.post("/", upload.array("imagens"), async (req, res) => {
       cidade,
       descricao,
       descricaocurta,
-      aceitatroca
+      aceitatroca,
+      badge,
+      prioridade
     } = req.body;
 
     // Upload imagens (Cloudinary)
@@ -91,10 +93,12 @@ router.post("/", upload.array("imagens"), async (req, res) => {
         descricao,
         descricaocurta,
         aceitatroca,
+        badge,
+        prioridade,
         imagens
       )
       VALUES
-      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
       RETURNING *
     `;
 
@@ -113,6 +117,8 @@ router.post("/", upload.array("imagens"), async (req, res) => {
       descricao,
       descricaocurta,
       aceitatroca === "true",
+      badge,
+      prioridade ? Number(prioridade) : null,
       JSON.stringify(imagens)
     ];
 
@@ -146,7 +152,9 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
       cidade,
       descricao,
       descricaocurta,
-      aceitatroca
+      aceitatroca,
+      badge,
+      prioridade
     } = req.body;
 
     let novasImagens = null;
@@ -174,8 +182,10 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
         descricao=$12,
         descricaocurta=$13,
         aceitatroca=$14,
-        imagens = COALESCE($15, imagens)
-      WHERE id=$16
+        badge=$15,
+        prioridade=$16,
+        imagens = COALESCE($17, imagens)
+      WHERE id=$18
       RETURNING *
     `;
 
@@ -194,6 +204,8 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
       descricao,
       descricaocurta,
       aceitatroca === "true",
+      badge,
+      prioridade ? Number(prioridade) : null,
       novasImagens ? JSON.stringify(novasImagens) : null,
       id
     ];
