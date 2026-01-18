@@ -6,7 +6,7 @@ const { uploadBuffer } = require("../services/uploadToCloudinary");
 
 // ==========================
 // LISTAR CARROS
-// ==========================
+// =========================
 router.get("/", async (req, res) => {
   try {
     const result = await db.query(`
@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
         ano,
         preco,
         precoantigo      AS "precoAntigo",
-        emoferta         AS "emPromocao",
+        emPromocao        AS "emPromocao",
         badge,
         secao,
         prioridade,
@@ -44,7 +44,7 @@ router.get("/", async (req, res) => {
 
 // ==========================
 // CRIAR CARRO
-// ==========================
+// =========================
 router.post("/", upload.array("imagens"), async (req, res) => {
   try {
     const {
@@ -82,7 +82,7 @@ router.post("/", upload.array("imagens"), async (req, res) => {
         ano,
         preco,
         precoantigo,
-        empromocao,
+        emPromocao,
         km,
         combustivel,
         cambio,
@@ -127,7 +127,7 @@ router.post("/", upload.array("imagens"), async (req, res) => {
 
 // ==========================
 // ATUALIZAR CARRO
-// ==========================
+// =========================
 router.put("/:id", upload.array("imagens"), async (req, res) => {
   try {
     const { id } = req.params;
@@ -165,7 +165,7 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
         ano=$3,
         preco=$4,
         precoantigo=$5,
-        emoferta=$6,
+        emPromocao=$6,
         km=$7,
         combustivel=$8,
         cambio=$9,
@@ -209,7 +209,7 @@ router.put("/:id", upload.array("imagens"), async (req, res) => {
 
 // ==========================
 // DELETE
-// ==========================
+// =========================
 router.delete("/:id", async (req, res) => {
   try {
     await db.query("DELETE FROM carros WHERE id=$1", [req.params.id]);
