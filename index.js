@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
+require("dotenv").config();
 
 const app = express();
 
@@ -39,6 +40,9 @@ app.use(
 // rotas da API
 const carrosRoutes = require("./src/routes/carros");
 app.use("/carros", carrosRoutes);
+
+const authGoogleRoutes = require("./src/routes/auth.js");
+app.use("/auth", authGoogleRoutes);
 
 // rota raiz
 app.get("/", (req, res) => res.send("API WebMotors rodando 🚗"));
