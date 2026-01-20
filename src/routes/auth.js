@@ -1,34 +1,52 @@
+const { OAuth2Client } = require("google-auth-library");
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+
 const express = require("express");
 const router = express.Router();
-const { OAuth2Client } = require("google-auth-library");
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const client = new OAuth2Client(
+  "900520090831-abk5o444b79mfegivkmc0adofpcmqgi2.apps.googleusercontent.com"
+);
 
 router.post("/google", async (req, res) => {
   const { token } = req.body;
 
-  if (!token) {
-    return res.status(400).json({ erro: "Token não enviado" });
-  }
-
   try {
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: "900520090831-tocd8s3mis8o5jo4tsgs4nim9vs96ugh.apps.googleusercontent.com"
     });
 
     const payload = ticket.getPayload();
-    const { email, name } = payload;
 
-    return res.json({
-      sucesso: true,
-      usuario: { email, name }
-    });
+    const googleId = payload.sub;
+    const email = payload.email;
+    const name = payload.name;
+    const avatar = payload.picture;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        googleId,
+        avatar
+      });
+    }
+
+    const systemToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.json({ token: systemToken });
 
   } catch (err) {
-    return res.status(401).json({
-      erro: "Token inválido"
-    });
+    console.error(err);
+    return res.status(401).json({ error: "Token Google inválido" });
   }
 });
 
