@@ -7,6 +7,10 @@ const {
   deleteManagedImages,
   uploadBuffer
 } = require("../services/uploadToCloudinary");
+const {
+  optionalInteger,
+  optionalNumber
+} = require("../utils/numbers");
 
 const auth = require("../middlewares/auth");
 const onlyAdmin = require("../middlewares/onlyadmin");
@@ -90,6 +94,16 @@ router.post(
         prioridade
       } = req.body;
 
+      const normalizedMarca = marca?.trim();
+      const normalizedModelo = modelo?.trim();
+      const normalizedPreco = optionalNumber(preco);
+
+      if (!normalizedMarca || !normalizedModelo || normalizedPreco === null) {
+        return res.status(400).json({
+          error: "Marca, modelo e preço válido são obrigatórios"
+        });
+      }
+
       let imagens = [];
       if (req.files && req.files.length > 0) {
         imagens = await Promise.all(
@@ -126,13 +140,13 @@ router.post(
       `;
 
       const values = [
-        marca,
-        modelo,
-        ano,
-        preco,
-        precoAntigo || null,
+        normalizedMarca,
+        normalizedModelo,
+        optionalInteger(ano),
+        normalizedPreco,
+        optionalNumber(precoAntigo),
         emPromocao === "true",
-        km,
+        optionalInteger(km),
         combustivel,
         cambio,
         cor,
@@ -141,7 +155,7 @@ router.post(
         descricaocurta,
         aceitatroca === "true",
         badge,
-        prioridade ? Number(prioridade) : null,
+        optionalInteger(prioridade),
         JSON.stringify(imagens)
       ];
 
@@ -194,6 +208,16 @@ router.put(
         prioridade
       } = req.body;
 
+      const normalizedMarca = marca?.trim();
+      const normalizedModelo = modelo?.trim();
+      const normalizedPreco = optionalNumber(preco);
+
+      if (!normalizedMarca || !normalizedModelo || normalizedPreco === null) {
+        return res.status(400).json({
+          error: "Marca, modelo e preço válido são obrigatórios"
+        });
+      }
+
       let novasImagens = null;
       if (req.files && req.files.length > 0) {
         novasImagens = await Promise.all(
@@ -227,13 +251,13 @@ router.put(
       `;
 
       const values = [
-        marca,
-        modelo,
-        ano,
-        preco,
-        precoAntigo || null,
+        normalizedMarca,
+        normalizedModelo,
+        optionalInteger(ano),
+        normalizedPreco,
+        optionalNumber(precoAntigo),
         emPromocao === "true",
-        km,
+        optionalInteger(km),
         combustivel,
         cambio,
         cor,
@@ -242,7 +266,7 @@ router.put(
         descricaocurta,
         aceitatroca === "true",
         badge,
-        prioridade ? Number(prioridade) : null,
+        optionalInteger(prioridade),
         novasImagens ? JSON.stringify(novasImagens) : null,
         id
       ];
