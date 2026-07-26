@@ -16,9 +16,15 @@ Backend REST para um marketplace automotivo. A API disponibiliza o catálogo pub
 
 Este repositório forma o backend do projeto **Classic Motors**. A interface está em [Classicmotors-FRONT](https://github.com/Gustavo-tec0110/Classicmotors-FRONT).
 
-## Capturas
+## Screenshots
 
-Não se aplica à API isolada. A interface correspondente está documentada no repositório `Classicmotors-FRONT`.
+> Placeholder: uma captura da futura documentação OpenAPI será adicionada quando a interface interativa da API estiver disponível.
+
+A interface correspondente está documentada no repositório [Classicmotors-FRONT](https://github.com/Gustavo-tec0110/Classicmotors-FRONT).
+
+## Demonstração
+
+Ainda não há uma instância pública estável da API. A integração completa pode ser avaliada localmente com o frontend Classic Motors.
 
 ## Funcionalidades
 
@@ -42,11 +48,11 @@ flowchart LR
     API --> Media["Cloudinary"]
 ```
 
-## Stack
+## Tecnologias
 
 Node.js, Express, PostgreSQL, JWT, bcrypt, Multer, Cloudinary e Node Test Runner.
 
-## Executar localmente
+## Como executar localmente
 
 Requisitos: Node.js 20+ e PostgreSQL.
 
@@ -101,7 +107,7 @@ npm test
 
 A suíte atual valida health check e tratamento de rota inexistente sem exigir banco. Casos de integração com PostgreSQL continuam no roadmap.
 
-## Estrutura
+## Estrutura do projeto
 
 ```text
 app.js                  # composição do Express
@@ -117,6 +123,12 @@ src/
 test/                   # testes HTTP
 ```
 
+## Aprendizados
+
+- organização de uma API Express por responsabilidades;
+- autenticação stateless com JWT e autorização baseada em papel;
+- integração segura entre PostgreSQL, upload de mídia e clientes web.
+
 ## Limitações conhecidas
 
 - o schema ainda é criado por scripts, sem ferramenta de migrations;
@@ -124,7 +136,7 @@ test/                   # testes HTTP
 - o fluxo opcional de Google OAuth está preservado como código experimental e não faz parte do caminho suportado;
 - faltam testes de integração com PostgreSQL e Cloudinary.
 
-## Roadmap
+## Próximos passos
 
 - [ ] adotar migrations transacionais;
 - [ ] validar payloads com schema;
