@@ -3,10 +3,25 @@ const router = express.Router();
 
 const db = require("../database/db");
 const upload = require("../config/multer");
-const { uploadBuffer } = require("../services/uploadToCloudinary");
+const {
+  deleteManagedImages,
+  uploadBuffer
+} = require("../services/uploadToCloudinary");
 
 const auth = require("../middlewares/auth");
 const onlyAdmin = require("../middlewares/onlyadmin");
+
+function normalizeImages(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== "string") return [];
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
 
 // ==========================
 // LISTAR CARROS (PÚBLICO)
@@ -151,6 +166,14 @@ router.put(
   async (req, res) => {
     try {
       const { id } = req.params;
+      const existingResult = await db.query(
+        "SELECT imagens FROM carros WHERE id=$1",
+        [id]
+      );
+
+      if (existingResult.rowCount === 0) {
+        return res.status(404).json({ error: "Carro não encontrado" });
+      }
 
       const {
         marca,
@@ -225,6 +248,13 @@ router.put(
       ];
 
       const result = await db.query(query, values);
+
+      if (novasImagens) {
+        await deleteManagedImages(
+          normalizeImages(existingResult.rows[0].imagens)
+        );
+      }
+
       res.json(result.rows[0]);
 
     } catch (err) {
@@ -243,8 +273,24 @@ router.delete(
   onlyAdmin,
   async (req, res) => {
     try {
+      const existingResult = await db.query(
+        "SELECT imagens FROM carros WHERE id=$1",
+        [req.params.id]
+      );
+
+      if (existingResult.rowCount === 0) {
+        return res.status(404).json({ error: "Carro não encontrado" });
+      }
+
       await db.query("DELETE FROM carros WHERE id=$1", [req.params.id]);
-      res.json({ message: "Carro removido" });
+      const cleanup = await deleteManagedImages(
+        normalizeImages(existingResult.rows[0].imagens)
+      );
+
+      res.json({
+        message: "Carro removido",
+        imagensRemovidas: cleanup.removed
+      });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Erro ao remover carro" });
