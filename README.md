@@ -4,9 +4,9 @@
 
 <p align="center">
   <a href="https://github.com/Gustavo-tec0110/Classicmotors--BACK/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Gustavo-tec0110/Classicmotors--BACK/actions/workflows/ci.yml/badge.svg"></a>
-  <img alt="Status" src="https://img.shields.io/badge/status-em%20evolu%C3%A7%C3%A3o-b91c1c">
+  <a href="https://webmotors-clone-back.onrender.com/health"><img alt="Deploy" src="https://img.shields.io/badge/deploy-online-16a34a?logo=render&logoColor=white"></a>
   <img alt="Node.js" src="https://img.shields.io/badge/Node.js-20-339933?logo=nodedotjs&logoColor=white">
-  <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-8.x-4169e1?logo=postgresql&logoColor=white">
+  <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-18-4169e1?logo=postgresql&logoColor=white">
   <img alt="Licença" src="https://img.shields.io/badge/licen%C3%A7a-MIT-2563eb">
 </p>
 
@@ -24,7 +24,11 @@ A interface correspondente está documentada no repositório [Classicmotors-FRON
 
 ## Demonstração
 
-Ainda não há uma instância pública estável da API. A integração completa pode ser avaliada localmente com o frontend Classic Motors.
+- **API:** [webmotors-clone-back.onrender.com](https://webmotors-clone-back.onrender.com)
+- **Health check:** [webmotors-clone-back.onrender.com/health](https://webmotors-clone-back.onrender.com/health)
+- **Frontend:** [classicmotors-front.onrender.com](https://classicmotors-front.onrender.com)
+
+O serviço utiliza a modalidade gratuita do Render e pode levar alguns segundos para responder após um período de inatividade.
 
 ## Funcionalidades
 
