@@ -1,12 +1,15 @@
 const multer = require("multer");
+const { ALLOWED_IMAGE_TYPES } = require("../utils/images");
 
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype && file.mimetype.startsWith("image/")) {
+  if (ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Arquivo não é uma imagem"), false);
+    const error = new Error("Envie apenas imagens JPEG, PNG ou WebP.");
+    error.status = 400;
+    cb(error, false);
   }
 };
 
@@ -15,6 +18,6 @@ module.exports = multer({
   fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024,
-    files: 8
-  }
+    files: 8,
+  },
 });

@@ -41,6 +41,9 @@ O serviço utiliza a modalidade gratuita do Render e pode levar alguns segundos 
 - persistência em PostgreSQL;
 - health check e respostas de erro estruturadas;
 - limite de tamanho e quantidade para uploads.
+- catálogo inicial idempotente com 15 veículos completos e cinco registros em
+  cada seção: ofertas, clássicos e modernos;
+- busca, filtros, ordenação e paginação no catálogo público.
 
 ## Arquitetura
 
@@ -71,45 +74,56 @@ Copie `.env.example` para `.env`, crie as tabelas e inicie a API:
 ```bash
 npm run db:init-users
 npm run db:init-cars
+npm run db:seed-catalog
 npm run dev
 ```
 
-A API estará em `http://localhost:3000` e o health check em `/health`.
+O catálogo também é reconciliado com segurança na inicialização. A chave
+`stable_id` impede duplicação quando o seed roda novamente. A API estará em
+`http://localhost:3000` e o health check em `/health`.
 
 ## Variáveis de ambiente
 
-| Variável | Finalidade |
-|---|---|
-| `DATABASE_URL` | conexão PostgreSQL |
-| `DATABASE_SSL` | habilita SSL para bancos gerenciados |
-| `JWT_SECRET` | assinatura dos tokens |
-| `ADMIN_EMAILS` | e-mails autorizados como administradores |
+| Variável       | Finalidade                                    |
+| -------------- | --------------------------------------------- |
+| `DATABASE_URL` | conexão PostgreSQL                            |
+| `DATABASE_SSL` | habilita SSL para bancos gerenciados          |
+| `JWT_SECRET`   | assinatura dos tokens                         |
+| `ADMIN_EMAILS` | e-mails autorizados como administradores      |
 | `CORS_ORIGINS` | origens web permitidas, separadas por vírgula |
-| `CLOUDINARY_*` | credenciais de armazenamento de imagens |
-| `PORT` | porta HTTP |
+| `CLOUDINARY_*` | credenciais de armazenamento de imagens       |
+| `PORT`         | porta HTTP                                    |
 
 Nunca versione o arquivo `.env`.
 
 ## Endpoints
 
-| Método | Rota | Acesso |
-|---|---|---|
-| `GET` | `/health` | público |
-| `POST` | `/auth/register` | público |
-| `POST` | `/auth/login` | público |
-| `GET` | `/carros` | público |
-| `POST` | `/carros` | administrador |
-| `PUT` | `/carros/:id` | administrador |
-| `DELETE` | `/carros/:id` | administrador |
+| Método   | Rota                 | Acesso        |
+| -------- | -------------------- | ------------- |
+| `GET`    | `/health`            | público       |
+| `POST`   | `/auth/register`     | público       |
+| `POST`   | `/auth/login`        | público       |
+| `GET`    | `/carros`            | público       |
+| `GET`    | `/carros/categorias` | público       |
+| `GET`    | `/carros/:id`        | público       |
+| `POST`   | `/carros`            | administrador |
+| `PUT`    | `/carros/:id`        | administrador |
+| `DELETE` | `/carros/:id`        | administrador |
 
 ## Testes e qualidade
 
 ```bash
 npm run check
 npm test
+npm run lint
+npm run format:check
+npm run build
+npm audit
 ```
 
-A suíte atual valida health check e tratamento de rota inexistente sem exigir banco. Casos de integração com PostgreSQL continuam no roadmap.
+A suíte valida o contrato HTTP, consultas, imagens, composição do catálogo,
+contagem mínima por categoria e idempotência do seed. Os créditos e licenças
+das imagens estão em [docs/VEHICLE_IMAGE_ATTRIBUTIONS.md](docs/VEHICLE_IMAGE_ATTRIBUTIONS.md).
 
 ## Estrutura do projeto
 

@@ -20,7 +20,6 @@ module.exports = async (req, res, next) => {
 
     req.user = user;
     next();
-
   } catch {
     res.status(401).json({ error: "Token inválido" });
   }

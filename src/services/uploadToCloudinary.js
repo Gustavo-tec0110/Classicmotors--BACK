@@ -12,25 +12,25 @@ const streamifier = require("streamifier");
  */
 function uploadBuffer(buffer, originalName) {
   return new Promise((resolve, reject) => {
-    const safeBaseName = path
-      .parse(originalName)
-      .name
-      .normalize("NFKD")
-      .replace(/[^\w-]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .toLowerCase() || "imagem";
+    const safeBaseName =
+      path
+        .parse(originalName)
+        .name.normalize("NFKD")
+        .replace(/[^\w-]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .toLowerCase() || "imagem";
 
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: "webmotors",
         resource_type: "image",
         public_id: `${safeBaseName}-${randomUUID()}`,
-        overwrite: false
+        overwrite: false,
       },
       (error, result) => {
         if (error) return reject(error);
         resolve(result.secure_url);
-      }
+      },
     );
 
     streamifier.createReadStream(buffer).pipe(uploadStream);
@@ -51,7 +51,7 @@ function getManagedPublicId(imageUrl) {
     if (publicIdParts.length === 0) return null;
 
     publicIdParts[publicIdParts.length - 1] = path.parse(
-      publicIdParts[publicIdParts.length - 1]
+      publicIdParts[publicIdParts.length - 1],
     ).name;
 
     const publicId = publicIdParts.map(decodeURIComponent).join("/");
@@ -62,17 +62,15 @@ function getManagedPublicId(imageUrl) {
 }
 
 async function deleteManagedImages(imageUrls = []) {
-  const publicIds = imageUrls
-    .map(getManagedPublicId)
-    .filter(Boolean);
+  const publicIds = imageUrls.map(getManagedPublicId).filter(Boolean);
 
   const results = await Promise.allSettled(
     publicIds.map((publicId) =>
       cloudinary.uploader.destroy(publicId, {
         resource_type: "image",
-        invalidate: true
-      })
-    )
+        invalidate: true,
+      }),
+    ),
   );
 
   return {
@@ -80,13 +78,13 @@ async function deleteManagedImages(imageUrls = []) {
     removed: results.filter(
       (result) =>
         result.status === "fulfilled" &&
-        ["ok", "not found"].includes(result.value.result)
-    ).length
+        ["ok", "not found"].includes(result.value.result),
+    ).length,
   };
 }
 
 module.exports = {
   deleteManagedImages,
   getManagedPublicId,
-  uploadBuffer
+  uploadBuffer,
 };

@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/UserSQL");
 
 const adminEmails = process.env.ADMIN_EMAILS
-  ? process.env.ADMIN_EMAILS.split(",").map(e => e.trim())
+  ? process.env.ADMIN_EMAILS.split(",").map((e) => e.trim())
   : [];
 
 async function register(req, res) {
@@ -27,17 +27,16 @@ async function register(req, res) {
       name,
       email,
       passwordHash,
-      role
+      role,
     });
 
     const token = jwt.sign(
       { id: user.id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     res.status(201).json({ user, token });
-
   } catch (err) {
     console.error("REGISTER ERROR:", err);
     res.status(500).json({ error: "Erro interno" });

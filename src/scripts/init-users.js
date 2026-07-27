@@ -19,7 +19,7 @@ async function init() {
   process.exit(0);
 }
 
-init().catch(err => {
+init().catch((err) => {
   console.error("❌ Erro:", err);
   process.exit(1);
 });

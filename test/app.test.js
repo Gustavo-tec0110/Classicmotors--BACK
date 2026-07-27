@@ -9,17 +9,21 @@ const app = require("../app");
 let server;
 let baseUrl;
 
-function get(path) {
+function get(path, headers = {}) {
   return new Promise((resolve, reject) => {
     http
-      .get(`${baseUrl}${path}`, (response) => {
+      .get(`${baseUrl}${path}`, { headers }, (response) => {
         let body = "";
         response.setEncoding("utf8");
         response.on("data", (chunk) => {
           body += chunk;
         });
         response.on("end", () => {
-          resolve({ status: response.statusCode, body: JSON.parse(body) });
+          resolve({
+            status: response.statusCode,
+            headers: response.headers,
+            body: JSON.parse(body),
+          });
         });
       })
       .on("error", reject);
@@ -56,4 +60,12 @@ test("rota inexistente responde com 404 estruturado", async () => {
 
   assert.equal(response.status, 404);
   assert.deepEqual(response.body, { error: "Rota não encontrada" });
+});
+
+test("CORS permite o frontend oficial publicado", async () => {
+  const origin = "https://classicmotors-front.onrender.com";
+  const response = await get("/health", { Origin: origin });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers["access-control-allow-origin"], origin);
 });

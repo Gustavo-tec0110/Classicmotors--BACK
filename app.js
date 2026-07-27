@@ -11,7 +11,7 @@ const authRoutes = require("./src/routes/authRoutes");
 const app = express();
 const allowedOrigins = (
   process.env.CORS_ORIGINS ||
-  "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5500,http://127.0.0.1:5500"
+  "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5500,http://127.0.0.1:5500,https://classicmotors-front.onrender.com"
 )
   .split(",")
   .map((origin) => origin.trim())
@@ -48,7 +48,8 @@ app.use(
     setHeaders: (response, filePath) => {
       response.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
       const extension = path.extname(filePath).toLowerCase();
-      if (extension === ".webp") response.setHeader("Content-Type", "image/webp");
+      if (extension === ".webp")
+        response.setHeader("Content-Type", "image/webp");
       if ([".jpg", ".jpeg"].includes(extension)) {
         response.setHeader("Content-Type", "image/jpeg");
       }
@@ -72,8 +73,10 @@ app.use((_req, res) => {
 });
 app.use((error, _req, res, _next) => {
   console.error("Erro não tratado:", error.message);
-  const status = error.message.includes("CORS") ? 403 : 500;
-  res.status(status).json({ error: status === 403 ? error.message : "Erro interno" });
+  const status = error.status || (error.message.includes("CORS") ? 403 : 500);
+  res.status(status).json({
+    error: status < 500 ? error.message : "Erro interno",
+  });
 });
 
 module.exports = app;

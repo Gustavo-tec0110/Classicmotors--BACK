@@ -1,10 +1,7 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 
-const {
-  optionalInteger,
-  optionalNumber
-} = require("../src/utils/numbers");
+const { optionalInteger, optionalNumber } = require("../src/utils/numbers");
 
 test("campos numéricos opcionais vazios são convertidos para null", () => {
   assert.equal(optionalNumber(""), null);

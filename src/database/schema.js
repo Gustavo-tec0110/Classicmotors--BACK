@@ -17,6 +17,7 @@ async function ensureDatabaseSchema() {
   await db.query(`
     CREATE TABLE IF NOT EXISTS carros (
       id SERIAL PRIMARY KEY,
+      stable_id TEXT,
       marca TEXT,
       modelo TEXT,
       ano INTEGER,
@@ -39,6 +40,17 @@ async function ensureDatabaseSchema() {
       imagens JSONB NOT NULL DEFAULT '[]'::jsonb
     );
   `);
+
+  await db.query("ALTER TABLE carros ADD COLUMN IF NOT EXISTS stable_id TEXT");
+  await db.query(
+    "CREATE UNIQUE INDEX IF NOT EXISTS carros_stable_id_unique_full ON carros (stable_id)",
+  );
+  await db.query(
+    "CREATE INDEX IF NOT EXISTS carros_secao_idx ON carros (secao)",
+  );
+  await db.query(
+    "CREATE INDEX IF NOT EXISTS carros_preco_idx ON carros (preco)",
+  );
 }
 
 module.exports = { ensureDatabaseSchema };
