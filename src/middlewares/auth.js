@@ -4,23 +4,26 @@ const User = require("../models/UserSQL");
 module.exports = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
-    return res.status(401).json({ error: "Token não fornecido" });
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Não autorizado." });
   }
 
-  const token = authHeader.split(" ")[1];
+  const token = authHeader.slice(7).trim();
+  if (!token) {
+    return res.status(401).json({ error: "Não autorizado." });
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);
 
     if (!user) {
-      return res.status(401).json({ error: "Usuário inválido" });
+      return res.status(401).json({ error: "Não autorizado." });
     }
 
     req.user = user;
-    next();
+    return next();
   } catch {
-    res.status(401).json({ error: "Token inválido" });
+    return res.status(401).json({ error: "Não autorizado." });
   }
 };

@@ -1,6 +1,6 @@
 module.exports = (req, res, next) => {
   if (req.user.role !== "admin") {
-    return res.status(403).json({ error: "Acesso restrito a admin" });
+    return res.status(403).json({ error: "Acesso restrito à administração." });
   }
-  next();
+  return next();
 };
