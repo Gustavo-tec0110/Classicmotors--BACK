@@ -18,15 +18,24 @@ Este repositório forma o backend do projeto **Classic Motors**. A interface est
 
 ## Screenshots
 
-> Placeholder: uma captura da futura documentação OpenAPI será adicionada quando a interface interativa da API estiver disponível.
-
-A interface correspondente está documentada no repositório [Classicmotors-FRONT](https://github.com/Gustavo-tec0110/Classicmotors-FRONT).
+A API não possui interface gráfica própria. A experiência visual e as capturas do
+projeto estão documentadas no repositório
+[Classicmotors-FRONT](https://github.com/Gustavo-tec0110/Classicmotors-FRONT).
 
 ## Demonstração
 
 - **API:** [webmotors-clone-back.onrender.com](https://webmotors-clone-back.onrender.com)
 - **Health check:** [webmotors-clone-back.onrender.com/health](https://webmotors-clone-back.onrender.com/health)
 - **Frontend:** [classicmotors-front.onrender.com](https://classicmotors-front.onrender.com)
+- **Login administrativo:** [classicmotors-front.onrender.com/login.html](https://classicmotors-front.onrender.com/login.html)
+
+Credenciais de demonstração:
+
+- **E-mail:** `admin@exemplo.com`
+- **Senha:** `admin123`
+
+A senha é armazenada no PostgreSQL exclusivamente como hash bcrypt. Os valores
+acima são públicos apenas para permitir a avaliação do projeto.
 
 O serviço utiliza a modalidade gratuita do Render e pode levar alguns segundos para responder após um período de inatividade.
 

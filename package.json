@@ -1,7 +1,7 @@
 {
-  "name": "webmotor-back",
+  "name": "classic-motors-api",
   "version": "1.0.0",
-  "description": "API backend do WebMotors Clone",
+  "description": "API backend do Classic Motors",
   "main": "index.js",
   "scripts": {
     "dev": "node --watch index.js",

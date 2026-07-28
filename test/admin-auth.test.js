@@ -53,7 +53,7 @@ test("login administrativo aceita apenas admin e usa erro genérico", async () =
     bcrypt.compare = async () => false;
     response = responseRecorder();
     await login(
-      { body: { email: "admin@example.com", password: "wrong" } },
+      { body: { email: "admin@exemplo.com", password: "wrong" } },
       response,
     );
     assert.equal(response.statusCode, 401);
@@ -64,7 +64,7 @@ test("login administrativo aceita apenas admin e usa erro genérico", async () =
     bcrypt.compare = async () => true;
     response = responseRecorder();
     await login(
-      { body: { email: " ADMIN@EXAMPLE.COM ", password: "correct" } },
+      { body: { email: " ADMIN@EXEMPLO.COM ", password: "correct" } },
       response,
     );
     assert.equal(response.statusCode, 200);
