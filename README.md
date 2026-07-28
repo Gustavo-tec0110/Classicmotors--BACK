@@ -49,7 +49,7 @@ O serviço utiliza a modalidade gratuita do Render e pode levar alguns segundos 
 - upload de imagens para Cloudinary;
 - persistência em PostgreSQL;
 - health check e respostas de erro estruturadas;
-- limite de tamanho e quantidade para uploads.
+- limite de tamanho e quantidade para uploads;
 - catálogo inicial idempotente com 15 veículos completos e cinco registros em
   cada seção: ofertas, clássicos e modernos;
 - busca, filtros, ordenação e paginação no catálogo público.
@@ -68,7 +68,7 @@ flowchart LR
 
 Node.js, Express, PostgreSQL, JWT, bcrypt, Multer, Cloudinary e Node Test Runner.
 
-## Como executar localmente
+## Como executar
 
 Requisitos: Node.js 20+ e PostgreSQL.
 
@@ -163,7 +163,7 @@ test/                   # testes HTTP
 - o fluxo opcional de Google OAuth está preservado como código experimental e não faz parte do caminho suportado;
 - faltam testes de integração com PostgreSQL e Cloudinary.
 
-## Próximos passos
+## Próximas melhorias
 
 - [ ] adotar migrations transacionais;
 - [ ] validar payloads com schema;
